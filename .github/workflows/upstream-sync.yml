@@ -63,8 +63,6 @@ jobs:
             gh pr create --base main --head upstream-sync \
               --title "chore: sync upstream Wholphin" \
               --body "Automated merge of damontecres/Wholphin:main into this fork. Review any conflicts or changes to fork-specific behavior before merging."
-          else
-            gh pr view upstream-sync --json number >/dev/null
           fi
 
       - name: Report merge conflicts
