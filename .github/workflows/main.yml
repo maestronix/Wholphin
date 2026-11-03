@@ -114,6 +114,6 @@ jobs:
           [See changes since `${{ env.LATEST_TAG }}`](https://github.com/maestronix/Wholphin/compare/${{ env.LATEST_TAG }}...${{ env.TAG_NAME }})' > ci_release_note.txt
 
 
-           gh release create "${{ env.TAG_NAME }}" \\
-            --latest=false --prerelease --title "${{ env.VERSION_NAME }}" --target "${{ env.BRANCH_NAME }}" -F ci_release_note.txt \\
+           gh release create "${{ env.TAG_NAME }}" \
+            --latest=false --prerelease --title "${{ env.VERSION_NAME }}" --target "${{ env.BRANCH_NAME }}" -F ci_release_note.txt \
             app/build/outputs/apk/**/*.apk
