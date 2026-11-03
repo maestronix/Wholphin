@@ -26,6 +26,18 @@ jobs:
           fetch-depth: 0 # Need the tags to build
       - name: Setup
         uses: ./.github/actions/setup
+      - name: Fetch upstream version tags
+        run: |
+          UPSTREAM=https://github.com/damontecres/Wholphin.git
+          git ls-remote --tags --refs "$UPSTREAM" 'v*' 'p*' |
+            while read -r _ ref; do
+              tag="${ref#refs/tags/}"
+              # The release tag belongs to this fork and may point to a different commit
+              # than the upstream tag with the same name.
+              if [[ "$tag" != "$TAG_NAME" ]] && ! git show-ref --verify --quiet "refs/tags/$tag"; then
+                git fetch --no-tags "$UPSTREAM" "$ref:refs/tags/$tag"
+              fi
+            done
       - name: Build app
         id: buildapp
         env:
