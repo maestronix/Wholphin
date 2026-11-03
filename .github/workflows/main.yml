@@ -31,6 +31,17 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Fetch upstream version tags
+        run: |
+          UPSTREAM=https://github.com/damontecres/Wholphin.git
+          git ls-remote --tags --refs "$UPSTREAM" 'v*' 'p*' |
+            while read -r _ ref; do
+              tag="${ref#refs/tags/}"
+              if ! git show-ref --verify --quiet "refs/tags/$tag"; then
+                git fetch --no-tags "$UPSTREAM" "$ref:refs/tags/$tag"
+              fi
+            done
+
       - name: Get version names
         run: |
           LATEST_TAG=$(git describe --tags --match 'v*' --abbrev=0)
@@ -92,17 +103,17 @@ jobs:
           gh release delete "${{ env.TAG_NAME }}" --cleanup-tag -y || true
 
 
-          echo '### `${{ env.BRANCH_NAME }}` development build
+          echo '### ` ${{ env.BRANCH_NAME }}` development build
 
-          This pre-release tracks the development build of Wholphin from the `${{ env.BRANCH_NAME }}` unstable branch.
+          This pre-release tracks the development build of Wholphin from the ` ${{ env.BRANCH_NAME }}` unstable branch.
 
-          See https://github.com/damontecres/Wholphin/releases/latest for the latest stable release.
+          See https://github.com/maestronix/Wholphin/releases/latest for the latest stable release.
 
-          If you want to update to this version in-app, change Settings->Advanced->Update URL to https://api.github.com/repos/damontecres/Wholphin/releases/tags/${{ env.TAG_NAME }} (replace `latest` with `tags/${{ env.TAG_NAME }}`).
+          If you want to update to this version in-app, change Settings->Advanced->Update URL to https://api.github.com/repos/maestronix/Wholphin/releases/tags/${{ env.TAG_NAME }} (replace `latest` with `tags/${{ env.TAG_NAME }}`).
 
-          [See changes since `${{ env.LATEST_TAG }}`](https://github.com/damontecres/Wholphin/compare/${{ env.LATEST_TAG }}...${{ env.TAG_NAME }})' > ci_release_note.txt
+          [See changes since ` ${{ env.LATEST_TAG }}`](https://github.com/maestronix/Wholphin/compare/${{ env.LATEST_TAG }}...${{ env.TAG_NAME }})' > ci_release_note.txt
 
 
-           gh release create "${{ env.TAG_NAME }}" \
-            --latest=false --prerelease --title "${{ env.VERSION_NAME }}" --target "${{ env.BRANCH_NAME }}" -F ci_release_note.txt \
+           gh release create "${{ env.TAG_NAME }}" \\
+            --latest=false --prerelease --title "${{ env.VERSION_NAME }}" --target "${{ env.BRANCH_NAME }}" -F ci_release_note.txt \\
             app/build/outputs/apk/**/*.apk
