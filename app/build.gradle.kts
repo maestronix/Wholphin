@@ -34,7 +34,7 @@ val av1ModuleExists =
 val mpvModuleExists =
     providers.provider { project.file("libs/wholphin-mpv-release.aar").exists() }
 val extensionsRepoActive =
-    providers.provider { project.hasProperty("WholphinExtensionsUsername") }
+    providers.gradleProperty("WholphinExtensionsUsername").map { it.isNotBlank() }.orElse(false)
 
 // See https://issuetracker.google.com/issues/402800800
 val isBuildingBundle =
