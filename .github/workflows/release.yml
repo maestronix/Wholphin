@@ -12,7 +12,7 @@ defaults:
 env:
   APK_SHORT_NAME: Wholphin.apk
   GRADLE_OPTS: "-Dorg.gradle.jvmargs='-Xmx12g -XX:MaxMetaspaceSize=1024m'"
-  TAG_NAME: \${{ github.ref_name }}
+  TAG_NAME: ${{ github.ref_name }}
 
 jobs:
   publish:
@@ -31,7 +31,7 @@ jobs:
           UPSTREAM=https://github.com/damontecres/Wholphin.git
           git ls-remote --tags --refs "$UPSTREAM" 'v*' 'p*' |
             while read -r _ ref; do
-              tag="\${ref#refs/tags/}"
+              tag="${ref#refs/tags/}"
               # The release tag belongs to this fork and may point to a different commit
               # than the upstream tag with the same name.
               if [[ "$tag" != "$TAG_NAME" ]] && ! git show-ref --verify --quiet "refs/tags/$tag"; then
@@ -41,12 +41,12 @@ jobs:
       - name: Build app
         id: buildapp
         env:
-          KEY_ALIAS: "\${{ secrets.KEY_ALIAS }}"
-          KEY_PASSWORD: "\${{ secrets.KEY_PASSWORD }}"
-          KEY_STORE_PASSWORD: "\${{ secrets.KEY_STORE_PASSWORD }}"
-          SIGNING_KEY: "\${{ secrets.SIGNING_KEY }}"
-          ORG_GRADLE_PROJECT_WholphinExtensionsUsername: "\${{ secrets.EXTENSIONS_USERNAME }}"
-          ORG_GRADLE_PROJECT_WholphinExtensionsPassword: "\${{ secrets.EXTENSIONS_PASSWORD }}"
+          KEY_ALIAS: "${{ secrets.KEY_ALIAS }}"
+          KEY_PASSWORD: "${{ secrets.KEY_PASSWORD }}"
+          KEY_STORE_PASSWORD: "${{ secrets.KEY_STORE_PASSWORD }}"
+          SIGNING_KEY: "${{ secrets.SIGNING_KEY }}"
+          ORG_GRADLE_PROJECT_WholphinExtensionsUsername: "${{ secrets.EXTENSIONS_USERNAME }}"
+          ORG_GRADLE_PROJECT_WholphinExtensionsPassword: "${{ secrets.EXTENSIONS_PASSWORD }}"
         run: |
           ./gradlew clean bundleAppstoreRelease
           ./gradlew bundleFiretvRelease
@@ -55,7 +55,7 @@ jobs:
         run: |
           echo "Verify APK signatures"
           find app/build/outputs \( -name '*.apk' -or -name '*.aab' \)
-          find app/build/outputs \( -name '*.apk' \) -print0 | xargs -0 -n1 \${{env.ANDROID_SDK_ROOT}}/build-tools/\${{ env.BUILD_TOOLS_VERSION }}/apksigner verify --verbose --print-certs
+          find app/build/outputs \( -name '*.apk' \) -print0 | xargs -0 -n1 ${{env.ANDROID_SDK_ROOT}}/build-tools/${{ env.BUILD_TOOLS_VERSION }}/apksigner verify --verbose --print-certs
       - name: Copy APK to shorter names
         id: apks
         run: |
@@ -86,10 +86,10 @@ jobs:
           compression-level: 6
       - name: Create GitHub release
         env:
-          GH_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           shopt -s globstar
 
-          gh release create "\${{ env.TAG_NAME }}" \
-            --latest --title "\${{ env.TAG_NAME }}" --verify-tag -n "" \
+          gh release create "${{ env.TAG_NAME }}" \
+            --latest --title "${{ env.TAG_NAME }}" --verify-tag -n "" \
             app/build/outputs/apk/**/*.apk
